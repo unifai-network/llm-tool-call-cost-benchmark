@@ -27,7 +27,7 @@ async def get_all_toolkit_ids():
     
     toolkit_ids = set()
     for action in available_actions:
-        action_id = action["action"]
+        action_id = action.get("action", "")
         if not re.match(r'^[a-zA-Z0-9_-]{1,64}$', action_id):
             print(f"Skipping action ID: {action_id}")
             continue
@@ -97,36 +97,49 @@ def plot_results(results_file="benchmark_results.jsonl", show=False):
     # Create plots
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
     
+    # Set global font sizes - approximately 2x larger
+    plt.rcParams.update({
+        'font.size': 14,
+        'axes.titlesize': 20,
+        'axes.labelsize': 18,
+        'xtick.labelsize': 20,
+        'ytick.labelsize': 20,
+        'legend.fontsize': 14,
+        'figure.titlesize': 22
+    })
+    
     # Plot 1: Input tokens vs number of tools
     ax1.scatter(n_tools, costs)
-    ax1.set_xlabel("Number of Tools")
-    ax1.set_ylabel("Cost Overhead Per Query (USD)")
-    ax1.set_title("Cost Overhead vs Number of Tools")
+    ax1.set_xlabel("Number of Tools", fontsize=18)
+    ax1.set_ylabel("Cost Overhead Per Query (USD)", fontsize=18)
+    ax1.set_title("Cost Overhead vs Number of Tools", fontsize=20)
+    ax1.tick_params(axis='both', which='major', labelsize=20)
     
     # Linear regression for costs
     z = np.polyfit(n_tools, costs, 1)
     p = np.poly1d(z)
     ax1.plot(n_tools, p(n_tools), "g--", alpha=0.8)
     # Add arrow at x=2 pointing to regression line
-    ax1.annotate("dynamic tools", xy=(2, p(2)), xytext=(2, p(2)+0.025), 
+    ax1.annotate("Dynamic\nTools", xy=(2, p(2)), xytext=(5, p(2)+0.035), 
                  arrowprops=dict(facecolor='red', edgecolor='red', shrink=0.05), 
-                 color='red', ha='center')
+                 color='red', ha='center', fontsize=16)
     # ax1.text(0.05, 0.95, f"y = {z[0]:.2f}x + {z[1]:.2f}", transform=ax1.transAxes)
     
     # Plot 2: Response time vs number of tools
     ax2.scatter(n_tools, response_times)
-    ax2.set_xlabel("Number of Tools")
-    ax2.set_ylabel("Response Time (s)")
-    ax2.set_title("Response Time vs Number of Tools")
+    ax2.set_xlabel("Number of Tools", fontsize=18)
+    ax2.set_ylabel("Response Time (s)", fontsize=18)
+    ax2.set_title("Response Time vs Number of Tools", fontsize=20)
+    ax2.tick_params(axis='both', which='major', labelsize=20)
     
     # Linear regression for response time
     z = np.polyfit(n_tools, response_times, 1)
     p = np.poly1d(z)
     ax2.plot(n_tools, p(n_tools), "g--", alpha=0.8)
     # Add arrow at x=2 pointing to regression line
-    ax2.annotate("dynamic tools", xy=(2, p(2)), xytext=(2, p(2)+1.2), 
+    ax2.annotate("Dynamic\nTools", xy=(2, p(2)), xytext=(5, p(2)+2.5), 
                  arrowprops=dict(facecolor='red', edgecolor='red', shrink=0.05), 
-                 color='red', ha='center')
+                 color='red', ha='center', fontsize=16)
     # ax2.text(0.05, 0.95, f"y = {z[0]:.2f}x + {z[1]:.2f}", transform=ax2.transAxes)
     
     plt.tight_layout()
